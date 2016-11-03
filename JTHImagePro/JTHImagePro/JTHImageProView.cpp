@@ -45,6 +45,11 @@ BEGIN_MESSAGE_MAP(CJTHImageProView, CScrollView)
 	ON_COMMAND(ID_CLOSING, &CJTHImageProView::OnClosing)
 	ON_COMMAND(ID_GEOMETRY_ZOOMIN_PIXEL_COPY, &CJTHImageProView::OnGeometryZoominPixelCopy)
 	ON_COMMAND(ID_GEOMETRY_ZOOMIN_INTERPOLATION, &CJTHImageProView::OnGeometryZoominInterpolation)
+	ON_COMMAND(ID_GEOMETRY_ZOOMOUT_SUBSAMPLING, &CJTHImageProView::OnGeometryZoomoutSubsampling)
+	ON_COMMAND(ID_GEOMETRY_ZOOMOUT_AVG, &CJTHImageProView::OnGeometryZoomoutAvg)
+	ON_COMMAND(ID_GEOMETRY_ROTATE, &CJTHImageProView::OnGeometryRotate)
+	ON_COMMAND(ID_GEOMETRY_MIRROR, &CJTHImageProView::OnGeometryMirror)
+	ON_COMMAND(ID_GEOMETRY_FLIP, &CJTHImageProView::OnGeometryFlip)
 END_MESSAGE_MAP()
 
 // CJTHImageProView 생성/소멸
@@ -76,11 +81,15 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 
 	if(pDoc->inputImg == NULL) return;
 
+	if (!pDoc)
+		return;
+
 	if(pDoc->depth == 1) {
 		for(int y = 0; y < pDoc->imageHeight; y++)
 			for(int x = 0; x < pDoc->imageWidth; x++)
 				pDC->SetPixel(x, y, RGB(pDoc->inputImg[y][x],
-				pDoc->inputImg[y][x], pDoc->inputImg[y][x]));
+										pDoc->inputImg[y][x], 
+										pDoc->inputImg[y][x]));
 
 		if(viewMode == THREE_IMAGES){
 			for(int y = 0; y < pDoc->imageHeight; y++)
@@ -91,7 +100,7 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 						pDoc->inputImg2[y][x]));
 
 			for(int y = 0; y < pDoc->imageHeight; y++)
-				for(int x = 0;x < pDoc->imageWidth; x++)
+				for(int x = 0; x < pDoc->imageWidth; x++)
 					pDC->SetPixel(x + pDoc->imageWidth * 2 + 60, y,
 					RGB(pDoc->resultImg[y][x],
 						pDoc->resultImg[y][x],
@@ -107,7 +116,7 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 		}
 		else{
 			for(int y = 0; y < pDoc->imageHeight; y++)
-				for(int x = 0;x < pDoc->imageWidth; x++)
+				for(int x = 0; x < pDoc->imageWidth; x++)
 					pDC->SetPixel(x + pDoc->imageWidth + 30, y,
 					RGB(pDoc->resultImg[y][x],
 						pDoc->resultImg[y][x],
@@ -118,7 +127,8 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 		for(int y = 0; y < pDoc->imageHeight; y++)
 			for(int x = 0; x < pDoc->imageWidth; x++)
 				pDC->SetPixel(x, y, RGB(pDoc->inputImg[y][3 * x],
-				pDoc->inputImg[y][3 * x + 1], pDoc->inputImg[y][3 * x + 2]));
+										pDoc->inputImg[y][3 * x + 1], 
+										pDoc->inputImg[y][3 * x + 2]));
 
 		if(viewMode == THREE_IMAGES){
 			for(int y = 0; y < pDoc->imageHeight; y++)
@@ -144,9 +154,6 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 						pDoc->resultImg[y][3 * x + 2]));
 		}
 	}
-
-	if (!pDoc)
-		return;
 
 	// TODO: 여기에 원시 데이터에 대한 그리기 코드를 추가합니다.
 	/*
@@ -428,5 +435,70 @@ void CJTHImageProView::OnGeometryZoominInterpolation()
 	if(pDoc->inputImg == NULL) return;
 	pDoc->GeometryZoominInterpolation();
 	viewMode = TWO_IMAGES_SCALED;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryZoomoutSubsampling()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryZoomoutSubsampling();
+	viewMode = TWO_IMAGES_SCALED;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryZoomoutAvg()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryZoomoutAvg();
+	viewMode = TWO_IMAGES_SCALED;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryRotate()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryRotate();
+	viewMode = TWO_IMAGES_SCALED;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryMirror()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryMirror();
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryFlip()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryFlip();
+	viewMode = TWO_IMAGES;
 	Invalidate(FALSE);
 }

@@ -73,4 +73,9 @@ public:
 	void Closing(void);
 	void GeometryZoominPixelCopy(void);
 	void GeometryZoominInterpolation(void);
+	void GeometryZoomoutAvg(void);
+	void GeometryRotate(void);
+	void GeometryMirror(void);
+	void GeometryFlip(void);
+	void GeometryZoomoutSubsampling(void);
 };

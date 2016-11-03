@@ -60,6 +60,11 @@ public:
 	afx_msg void OnClosing();
 	afx_msg void OnGeometryZoominPixelCopy();
 	afx_msg void OnGeometryZoominInterpolation();
+	afx_msg void OnGeometryZoomoutSubsampling();
+	afx_msg void OnGeometryZoomoutAvg();
+	afx_msg void OnGeometryRotate();
+	afx_msg void OnGeometryMirror();
+	afx_msg void OnGeometryFlip();
 };
 
 #ifndef _DEBUG  // JTHImageProView.cpp의 디버그 버전
