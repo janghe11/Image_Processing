@@ -19,6 +19,7 @@
 #endif
 
 #define PI 3.14159
+#define NUM_FRAMES 10
 
 // CJTHImageProDoc
 
@@ -771,4 +772,280 @@ void CJTHImageProDoc::GeometryFlip()
 	for(y = 0; y < imageHeight; y++)
 		for(x = 0; x < imageWidth; x++)
 			resultImg[imageHeight - 1 - y][x] = inputImg[y][x];
+}
+
+typedef struct
+{
+	int Px;
+	int Py;
+	int Qx;
+	int Qy;
+} control_line;
+
+void CJTHImageProDoc::GeometryWarping(void)
+{
+	control_line source_lines[23] = {{116, 7, 207, 5}, {34, 109, 90, 21}, {55, 249, 30, 128}, {118, 320, 65, 261},
+									 {123, 321, 171, 321}, {179, 319, 240, 264}, {247, 251, 282, 135}, {281, 114, 228, 8},
+									 {78, 106, 123, 109}, {187, 115, 235, 114}, {72, 142, 99, 128}, {74, 150, 122, 154},
+									 {108, 127, 123, 146}, {182, 152, 213, 132}, {183, 159, 229, 157}, {219, 131, 240, 154},
+									 {80, 246, 117, 212}, {127, 222, 146, 223}, {154, 227, 174, 221}, {228, 252, 183, 213},
+									 {114, 255, 186, 257}, {109, 258, 143, 277}, {152, 278, 190, 262}};
+
+	control_line dest_lines[23] = {{120, 8, 200, 6}, {12, 93, 96, 16}, {74, 271, 16, 110}, {126, 336, 96, 290},
+								  {142, 337, 181, 335}, {192, 335, 232, 280}, {244, 259, 288, 108}, {285, 92, 212, 13},
+								  {96, 135, 136, 118}, {194, 119, 223, 125}, {105, 145, 124, 134}, {110, 146, 138, 151},
+								  {131, 133, 139, 146}, {188, 146, 198, 134}, {189, 153, 218, 146}, {204, 133, 221, 140},
+								  {91, 268, 122, 202}, {149, 206, 159, 209}, {170, 209, 181, 204}, {235, 265, 208, 199},
+								  {121, 280, 205, 284}, {112, 286, 160, 301}, {166, 301, 214, 287}};
+
+	double u;
+	double h;
+	double d;
+	double tx, ty;
+	double xp, yp;
+
+	double weight;
+	double totalWeight;
+	double a = 0.001;
+	double b = 2.0;
+	double p = 0.75;
+
+	int x1, x2, y1, y2;
+	int src_x1, src_y1, src_x2, src_y2;
+	double src_line_length, dest_line_length;
+
+	int num_lines = 23;
+	int line;
+	int x, y;
+	int source_x, source_y;
+	int last_row, last_col;
+
+	last_row = imageHeight - 1;
+	last_col = imageWidth - 1;
+
+	for(y = 0; y < imageHeight; y++)
+	{
+		for(x = 0; x < imageWidth; x++)
+		{
+			totalWeight = 0.0;
+			tx = 0.0;
+			ty = 0.0;
+
+			for(line = 0; line < num_lines; line++)
+			{
+				x1 = dest_lines[line].Px;
+				y1 = dest_lines[line].Py;
+				x2 = dest_lines[line].Qx;
+				y2 = dest_lines[line].Qy;
+
+				dest_line_length = sqrt((double)((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
+
+				u = (double)((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) /
+					(double)((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+				h = (double)((y - y1) * (x2 - x1) - (x - x1) * (y2 - y1)) / dest_line_length;
+
+				if(u < 0) d = sqrt((double)((x - x1) * (x - x1) + (y - y1) * (y - y1)));
+				else if(u > 1) d = sqrt((double) ((x - x2) * (x - x2) + (y - y2) * (y - y2)));
+				else d = fabs(h);
+
+				src_x1 = source_lines[line].Px;
+				src_y1 = source_lines[line].Py;
+				src_x2 = source_lines[line].Qx;
+				src_y2 = source_lines[line].Qy;
+				src_line_length = sqrt((double)((src_x2 - src_x1) * (src_x2 - src_x1) + (src_y2 - src_y1) * (src_y2 - src_y1)));
+
+				xp = src_x1 + u * (src_x2 - src_x1) - h * (src_y2 - src_y1) / src_line_length;
+				yp = src_y1 + u * (src_y2 - src_y1) + h * (src_x2 - src_x1) / src_line_length;
+
+				weight = pow((pow((double)(dest_line_length), p) / (a + d)), b);
+
+				tx += (xp - x) * weight;
+				ty += (yp - y) * weight;
+				totalWeight += weight;
+			}
+
+			source_x = x + (int)(tx / totalWeight + 0.5);
+			source_y = y + (int)(ty / totalWeight + 0.5);
+
+			if(source_x < 0) source_x = 0;
+			if(source_x > last_col) source_x = last_col;
+			if(source_y < 0) source_y = 0;
+			if(source_y > last_row) source_y = last_row;
+
+			resultImg[y][x] = inputImg[source_y][source_x];
+		}
+	}
+}
+
+
+void CJTHImageProDoc::GeometryMorphing(void)
+{
+	control_line source_lines[23] = {{116, 7, 207, 5}, {34, 109, 90, 21}, {55, 249, 30, 128}, {118, 320, 65, 261},
+									 {123, 321, 171, 321}, {179, 319, 240, 264}, {247, 251, 282, 135}, {281, 114, 228, 8},
+									 {78, 106, 123, 109}, {187, 115, 235, 114}, {72, 142, 99, 128}, {74, 150, 122, 154},
+									 {108, 127, 123, 146}, {182, 152, 213, 132}, {183, 159, 229, 157}, {219, 131, 240, 154},
+									 {80, 246, 117, 212}, {127, 222, 146, 223}, {154, 227, 174, 221}, {228, 252, 183, 213},
+									 {114, 255, 186, 257}, {109, 258, 143, 277}, {152, 278, 190, 262}};
+
+	control_line dest_lines[23] = {{120, 8, 200, 6}, {12, 93, 96, 16}, {74, 271, 16, 110}, {126, 336, 96, 290},
+								  {142, 337, 181, 335}, {192, 335, 232, 280}, {244, 259, 288, 108}, {285, 92, 212, 13},
+								  {96, 135, 136, 118}, {194, 119, 223, 125}, {105, 145, 124, 134}, {110, 146, 138, 151},
+								  {131, 133, 139, 146}, {188, 146, 198, 134}, {189, 153, 218, 146}, {204, 133, 221, 140},
+								  {91, 268, 122, 202}, {149, 206, 159, 209}, {170, 209, 181, 204}, {235, 265, 208, 199},
+								  {121, 280, 205, 284}, {112, 286, 160, 301}, {166, 301, 214, 287}};
+
+	double u;
+	double h;
+	double d;
+	double tx, ty;
+	double xp, yp;
+
+	double weight;
+	double totalWeight;
+	double a = 0.001;
+	double b = 2.0;
+	double p = 0.75;
+
+	unsigned char **warpedImg;
+	unsigned char **warpedImg2;
+	int frame;
+	double fweight;
+	control_line warp_lines[23];
+	double tx2, ty2;
+	double xp2, yp2;
+	int dest_x1, dest_y1, dest_x2, dest_y2;
+	int source_x2, source_y2;
+
+	int x1, x2, y1, y2;
+	int src_x1, src_y1, src_x2, src_y2;
+	double src_line_length, dest_line_length;
+
+	int i, j;
+	int num_lines = 23;
+	int line;
+	int x, y;
+	int source_x, source_y;
+	int last_row, last_col;
+
+	LoadTwoImages();
+
+	warpedImg = (unsigned char **)malloc(imageHeight * sizeof(unsigned char *));
+	for(i = 0; i < imageHeight; i++) {
+		warpedImg[i] = (unsigned char *)malloc(imageWidth * depth);
+	}
+
+	warpedImg2 = (unsigned char **)malloc(imageHeight * sizeof(unsigned char *));
+	for(i = 0; i < imageHeight; i++) {
+		warpedImg2[i] = (unsigned char *)malloc(imageWidth * depth);
+	}
+
+	for(i = 0; i < NUM_FRAMES; i++) {
+		morphedImg[i] = (unsigned char **)malloc(imageHeight * sizeof(unsigned char *));
+
+		for(j = 0; j < imageHeight; j++) {
+			morphedImg[i][j] = (unsigned char *)malloc(imageWidth * depth);
+		}
+	}
+
+	last_row = imageHeight - 1;
+	last_col = imageWidth - 1;
+
+	for(frame = 1; frame <= NUM_FRAMES; frame++)
+	{
+		fweight = (double)(frame) / NUM_FRAMES;
+
+		for(line = 0; line < num_lines; line++)
+		{
+			warp_lines[line].Px = source_lines[line].Px + (dest_lines[line].Px - source_lines[line].Px) * fweight;
+			warp_lines[line].Py = source_lines[line].Py + (dest_lines[line].Py - source_lines[line].Py) * fweight;
+			warp_lines[line].Qx = source_lines[line].Qx + (dest_lines[line].Qx - source_lines[line].Qx) * fweight;
+			warp_lines[line].Qy = source_lines[line].Qy + (dest_lines[line].Qy - source_lines[line].Qy) * fweight;
+		}
+
+		for(y = 0; y < imageHeight; y++)
+		{
+			for(x = 0; x < imageWidth; x++)
+			{
+				totalWeight = 0.0;
+				tx = 0.0;
+				ty = 0.0;
+
+				tx2 = 0.0;
+				ty2 = 0.0;
+
+				for(line = 0; line < num_lines; line++)
+				{
+					x1 = warp_lines[line].Px;
+					y1 = warp_lines[line].Py;
+					x2 = warp_lines[line].Qx;
+					y2 = warp_lines[line].Qy;
+
+					dest_line_length = sqrt((double)((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1)));
+
+					u = (double)((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) /
+						(double)((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
+					h = (double)((y - y1) * (x2 - x1) - (x - x1) * (y2 - y1)) / dest_line_length;
+
+					if(u < 0) d = sqrt((double)((x - x1) * (x - x1) + (y - y1) * (y - y1)));
+					else if(u > 1) d = sqrt((double)((x - x2) * (x - x2) + (y - y2) * (y - y2)));
+					else d = fabs(h);
+
+					src_x1 = source_lines[line].Px;
+					src_y1 = source_lines[line].Py;
+					src_x2 = source_lines[line].Qx;
+					src_y2 = source_lines[line].Qy;
+					src_line_length = sqrt((double)((src_x2 - src_x1) * (src_x2 - src_x1) + (src_y2 - src_y1) * (src_y2 - src_y1)));
+
+					dest_x1 = dest_lines[line].Px;
+					dest_y1 = dest_lines[line].Py;
+					dest_x2 = dest_lines[line].Qx;
+					dest_y2 = dest_lines[line].Qy;
+					src_line_length = sqrt((double)((dest_x2 - dest_x1) * (dest_x2 - dest_x1) + (dest_y2 - dest_y1) * (dest_y2 - dest_y1)));
+
+					xp = src_x1 + u * (src_x2 - src_x1) - h * (src_y2 - src_y1) / src_line_length;
+					yp = src_y1 + u * (src_y2 - src_y1) + h * (src_x2 - src_x1) / src_line_length;
+
+					xp2 = dest_x1 + u * (dest_x2 - dest_x1) - h * (dest_y2 - dest_y1) / dest_line_length;
+					yp2 = dest_y1 + u * (dest_y2 - dest_y1) + h * (dest_x2 - dest_x1) / dest_line_length;
+
+					weight = pow((pow((double)(dest_line_length), p) / (a + d)), b);
+
+					tx += (xp - x) * weight;
+					ty += (yp - y) * weight;
+
+					tx2 += (xp2 - x) * weight;
+					ty2 += (yp2 - y) * weight;
+
+					totalWeight += weight;
+				}
+
+				source_x = x + (int)(tx / totalWeight + 0.5);
+				source_y = y + (int)(ty / totalWeight + 0.5);
+
+				source_x2 = x + (int)(tx2 / totalWeight + 0.5);
+				source_y2 = y + (int)(ty2 / totalWeight + 0.5);
+
+				if(source_x < 0) source_x = 0;
+				if(source_x > last_col) source_x = last_col;
+				if(source_y < 0) source_y = 0;
+				if(source_y > last_row) source_y = last_row;
+
+				if(source_x2 < 0) source_x2 = 0;
+				if(source_x2 > last_col) source_x2 = last_col;
+				if(source_y2 < 0) source_y2 = 0;
+				if(source_y2 > last_row) source_y2 = last_row;
+
+				warpedImg[y][x] = inputImg[source_y][source_x];
+				warpedImg2[y][x] = inputImg2[source_y2][source_x2];
+			}
+		}
+
+		for(y = 0; y < imageHeight; y++)
+			for(x = 0; x < imageWidth; x++) {
+				int val = (int) ((1.0 - fweight) * warpedImg[y][x] + fweight * warpedImg2[y][x]);
+				if(val < 0) val = 0;
+				if(val > 255) val = 255;
+				morphedImg[frame - 1][y][x] = val;
+			}
+	}
 }

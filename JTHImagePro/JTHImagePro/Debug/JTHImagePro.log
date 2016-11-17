@@ -1,13 +1,11 @@
-﻿빌드 시작: 2016-11-03 오전 9:54:09
+﻿빌드 시작: 2016-11-17 오전 10:40:39
      1>2 노드의 "C:\Users\502-00\Desktop\영상처리\2반\JTHImagePro\JTHImagePro\JTHImagePro.vcxproj" 프로젝트(build 대상)입니다.
      1>InitializeBuildStatus:
          "AlwaysCreate"이(가) 지정되었기 때문에 "Debug\JTHImagePro.unsuccessfulbuild"을(를) 만들고 있습니다.
        ClCompile:
          모든 출력이 최신 상태입니다.
-         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\JTHImagePro.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt JTHImageProDoc.cpp
-         JTHImageProDoc.cpp
-     1>c:\users\502-00\desktop\영상처리\2반\jthimagepro\jthimagepro\jthimageprodoc.cpp(450): warning C4244: '=' : 'long double'에서 'int'(으)로 변환하면서 데이터가 손실될 수 있습니다.
-     1>c:\users\502-00\desktop\영상처리\2반\jthimagepro\jthimagepro\jthimageprodoc.cpp(722): warning C4305: '=' : 'double'에서 'float'(으)로 잘립니다.
+         C:\Program Files\Microsoft Visual Studio 10.0\VC\bin\CL.exe /c /ZI /nologo /W3 /WX- /Od /Oy- /D WIN32 /D _WINDOWS /D _DEBUG /D _MBCS /D _AFXDLL /Gm /EHsc /RTC1 /MDd /GS /fp:precise /Zc:wchar_t /Zc:forScope /Yu"StdAfx.h" /Fp"Debug\JTHImagePro.pch" /Fo"Debug\\" /Fd"Debug\vc100.pdb" /Gd /TP /analyze- /errorReport:prompt JTHImageProView.cpp
+         JTHImageProView.cpp
        ResourceCompile:
          모든 출력이 최신 상태입니다.
        ManifestResourceCompile:

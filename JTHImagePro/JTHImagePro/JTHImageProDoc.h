@@ -24,6 +24,8 @@ public:
 	int gImageWidth;
 	int gImageHeight;
 	unsigned char **gResultImg;
+
+	unsigned char **morphedImg[10];
 // 작업입니다.
 public:
 
@@ -78,4 +80,6 @@ public:
 	void GeometryMirror(void);
 	void GeometryFlip(void);
 	void GeometryZoomoutSubsampling(void);
+	void GeometryWarping(void);
+	void GeometryMorphing(void);
 };

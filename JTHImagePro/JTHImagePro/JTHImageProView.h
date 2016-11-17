@@ -65,6 +65,8 @@ public:
 	afx_msg void OnGeometryRotate();
 	afx_msg void OnGeometryMirror();
 	afx_msg void OnGeometryFlip();
+	afx_msg void OnGeometryWarping();
+	afx_msg void OnGeometryMorphing();
 };
 
 #ifndef _DEBUG  // JTHImageProView.cpp의 디버그 버전

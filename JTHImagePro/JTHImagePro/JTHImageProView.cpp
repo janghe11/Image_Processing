@@ -19,6 +19,7 @@
 #define TWO_IMAGES        1
 #define THREE_IMAGES	  2
 #define TWO_IMAGES_SCALED 4
+#define MORPHING		  8
 
 
 // CJTHImageProView
@@ -50,6 +51,8 @@ BEGIN_MESSAGE_MAP(CJTHImageProView, CScrollView)
 	ON_COMMAND(ID_GEOMETRY_ROTATE, &CJTHImageProView::OnGeometryRotate)
 	ON_COMMAND(ID_GEOMETRY_MIRROR, &CJTHImageProView::OnGeometryMirror)
 	ON_COMMAND(ID_GEOMETRY_FLIP, &CJTHImageProView::OnGeometryFlip)
+	ON_COMMAND(ID_GEOMETRY_WARPING, &CJTHImageProView::OnGeometryWarping)
+	ON_COMMAND(ID_GEOMETRY_MORPHING, &CJTHImageProView::OnGeometryMorphing)
 END_MESSAGE_MAP()
 
 // CJTHImageProView 생성/소멸
@@ -80,10 +83,10 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 	ASSERT_VALID(pDoc);
 
 	if(pDoc->inputImg == NULL) return;
-
+	/*
 	if (!pDoc)
 		return;
-
+	*/
 	if(pDoc->depth == 1) {
 		for(int y = 0; y < pDoc->imageHeight; y++)
 			for(int x = 0; x < pDoc->imageWidth; x++)
@@ -113,6 +116,22 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 							RGB(pDoc->gResultImg[y][x],
 								pDoc->gResultImg[y][x],
 								pDoc->gResultImg[y][x]));
+		}
+		else if(viewMode == MORPHING) {
+			for(int y = 0; y < pDoc->imageHeight; y++)
+				for(int x = 0; x < pDoc->imageWidth; x++)
+					pDC->SetPixel(x + pDoc->imageWidth + 30, y,
+							  RGB(pDoc->inputImg2[y][x],
+								  pDoc->inputImg2[y][x],
+								  pDoc->inputImg2[y][x]));
+
+			for(int i = 0; i< 10; i++)
+				for(int y = 0; y < pDoc->imageHeight; y++)
+					for(int x = 0; x < pDoc->imageWidth; x++)
+						pDC->SetPixel(x + pDoc->imageWidth * 2 + 60, y,
+								  RGB(pDoc->morphedImg[i][y][x],
+									  pDoc->morphedImg[i][y][x],
+									  pDoc->morphedImg[i][y][x]));
 		}
 		else{
 			for(int y = 0; y < pDoc->imageHeight; y++)
@@ -144,6 +163,14 @@ void CJTHImageProView::OnDraw(CDC* pDC)
 					RGB(pDoc->resultImg[y][3 * x],
 						pDoc->resultImg[y][3 * x + 1],
 						pDoc->resultImg[y][3 * x + 2]));
+		}
+		else if(viewMode == TWO_IMAGES_SCALED) {
+			for(int y = 0; y < pDoc->gImageHeight; y++)
+				for(int x = 0; x < pDoc->gImageWidth; x++)
+					pDC->SetPixel(x + pDoc->imageWidth + 30, y,
+							  RGB(pDoc->gResultImg[y][3 * x],
+								  pDoc->gResultImg[y][3 * x + 1],
+								  pDoc->gResultImg[y][3 * x + 2]));
 		}
 		else{
 			for(int y = 0; y < pDoc->imageHeight; y++)
@@ -500,5 +527,30 @@ void CJTHImageProView::OnGeometryFlip()
 	if(pDoc->inputImg == NULL) return;
 	pDoc->GeometryFlip();
 	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryWarping()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->GeometryWarping();
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnGeometryMorphing()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	pDoc->GeometryMorphing();
+	viewMode = MORPHING;
 	Invalidate(FALSE);
 }
