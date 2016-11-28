@@ -67,6 +67,9 @@ public:
 	afx_msg void OnGeometryFlip();
 	afx_msg void OnGeometryWarping();
 	afx_msg void OnGeometryMorphing();
+	afx_msg void OnDCT();
+	afx_msg void OnFastDCT();
+	afx_msg void OnFastIDCT();
 };
 
 #ifndef _DEBUG  // JTHImageProView.cpp의 디버그 버전

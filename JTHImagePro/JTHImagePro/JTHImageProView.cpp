@@ -53,6 +53,9 @@ BEGIN_MESSAGE_MAP(CJTHImageProView, CScrollView)
 	ON_COMMAND(ID_GEOMETRY_FLIP, &CJTHImageProView::OnGeometryFlip)
 	ON_COMMAND(ID_GEOMETRY_WARPING, &CJTHImageProView::OnGeometryWarping)
 	ON_COMMAND(ID_GEOMETRY_MORPHING, &CJTHImageProView::OnGeometryMorphing)
+	ON_COMMAND(ID_DCT, &CJTHImageProView::OnDCT)
+	ON_COMMAND(ID_FastDCT, &CJTHImageProView::OnFastDCT)
+	ON_COMMAND(ID_FastIDCT, &CJTHImageProView::OnFastIDCT)
 END_MESSAGE_MAP()
 
 // CJTHImageProView 생성/소멸
@@ -552,5 +555,44 @@ void CJTHImageProView::OnGeometryMorphing()
 
 	pDoc->GeometryMorphing();
 	viewMode = MORPHING;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnDCT()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->DCT();
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnFastDCT()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->FastDCT();
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnFastIDCT()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->FastIDCT();
+	viewMode = TWO_IMAGES;
 	Invalidate(FALSE);
 }

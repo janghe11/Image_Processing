@@ -26,6 +26,11 @@ public:
 	unsigned char **gResultImg;
 
 	unsigned char **morphedImg[10];
+
+	//complex_num **fft_result;
+	//complex_num **ifft_result;
+
+	double **dct_result;
 // 작업입니다.
 public:
 
@@ -82,4 +87,9 @@ public:
 	void GeometryZoomoutSubsampling(void);
 	void GeometryWarping(void);
 	void GeometryMorphing(void);
+	void DCT(void);
+	void FastDCT(void);
+	void DCT_1D(double * in, double * out, const int count);
+	void FastIDCT(void);
+	void IDCT_1D(double * in, double * out, const int count);
 };

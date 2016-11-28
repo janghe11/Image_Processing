@@ -14,6 +14,7 @@
 #include <propkey.h>
 #include <math.h>
 
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -1047,5 +1048,166 @@ void CJTHImageProDoc::GeometryMorphing(void)
 				if(val > 255) val = 255;
 				morphedImg[frame - 1][y][x] = val;
 			}
+	}
+}
+
+
+void CJTHImageProDoc::DCT(void)
+{
+	int u, v;
+	int x, y;
+	int value;
+
+	dct_result = (double **) malloc(sizeof(double *) * imageHeight);
+	for(y = 0; y < imageHeight; y++)
+		dct_result[y] = (double *) malloc(sizeof(double) * imageWidth);
+
+	for(u = 0; u < imageWidth; u++) {
+		for(v = 0; v < imageHeight; v++) {
+			dct_result[u][v] = 0.0;
+			for(x = 0; x < imageWidth; x++) {
+				for(y = 0; y < imageHeight; y++) {
+					dct_result[u][v] += inputImg[y][x] * 
+						cos(((2.0 * x + 1.0) * u * PI) / (2.0 * imageWidth)) *
+						cos(((2.0 * y + 1.0) * v * PI) / (2.0 * imageHeight));
+				}
+			}
+			dct_result[u][v] *= 2.0 / sqrt((double)(imageWidth * imageHeight));
+			if(u == 0) dct_result[u][v] *= 1.0 / sqrt(2.0);
+			if(v == 0) dct_result[u][v] *= 1.0 / sqrt(2.0);
+		}
+	}
+
+	for(y = 0; y < imageWidth; y++)
+		for(x = 0; x < imageHeight; x++) {
+			value = (int) (30 * log(1.0 + dct_result[y][x]));
+			if(value < 0) value = 0;
+				if(value > 255) value = 255;
+					resultImg[y][x] = value;
+		}
+}
+
+
+void CJTHImageProDoc::FastDCT(void)
+{
+	int i, j, x, y, value;
+	double *in, *out;
+
+	dct_result = (double **) malloc(sizeof(double *) * imageHeight);
+	for(y = 0; y < imageHeight; y++)
+		dct_result[y] = (double *) malloc(sizeof(double) * imageWidth);
+
+	in = (double *) malloc(sizeof(double) * imageHeight);
+	out = (double *) malloc(sizeof(double) * imageWidth);
+
+	for(j = 0; j < imageWidth; j++)
+	{
+		for(i = 0; i < imageWidth; i++)
+			in[i] = inputImg[j][i];
+		DCT_1D(in ,out, imageWidth);
+		for(i = 0; i < imageWidth; i++) dct_result[j][i] = out[i];
+	}
+
+	free(in);
+	free(out);
+	out = (double * ) malloc(sizeof(double) * imageHeight);
+	in =  (double * ) malloc(sizeof(double) * imageHeight);
+
+	for(j = 0; j < imageWidth; j++)
+	{
+		for(i = 0; i < imageHeight; i++)
+			in[i] = dct_result[i][j];
+		DCT_1D(in, out, imageHeight);
+		for(i = 0; i < imageHeight; i++) dct_result[i][j] = out[i];
+	}
+
+	for(y = 0; y < imageWidth; y++)
+		for(x = 0; x < imageHeight; x++) {
+			value = (int) (30 * log(1.0 + dct_result[y][x]));
+			if(value < 0) value = 0;
+			if(value > 255) value = 255;
+			resultImg[y][x] = value;
+		}
+}
+
+
+void CJTHImageProDoc::DCT_1D(double * in, double * out, const int count)
+{
+	int x, u;
+
+	for(u = 0; u < count; u++) {
+		double z = 0;
+		for(x = 0; x < count; x++) {
+			z += in[x] * cos(PI * (double)u * (double)(2 * x + 1) / (double)(2 * count));
+		}
+
+		if(u == 0) z = z * (1.0 / sqrt(2.0));
+		out[u] = z * (sqrt(2.0 / (double) count));
+	}
+}
+
+
+void CJTHImageProDoc::FastIDCT(void)
+{
+	int i, j, x, y;
+	double *in, *out, **idct_result;
+
+	idct_result = (double **) malloc(sizeof(double *) * imageHeight);
+	for(y = 0; y < imageHeight; y++)
+		idct_result[y] = (double *) malloc(sizeof(double) * imageWidth);
+		
+	in = (double *) malloc(sizeof(double) * imageHeight);
+	out = (double *) malloc(sizeof(double) * imageWidth);
+
+	for(j = 0; j < imageHeight; j++)
+	{
+		for(i = 0; i < imageWidth; i++)
+			in[i] = dct_result[j][i];
+
+		IDCT_1D(in, out, imageWidth);
+
+		for(i = 0; i < imageWidth; i++)
+			idct_result[j][i] = out[i];
+	}
+
+	free(in);
+	free(out);
+	out = (double *) malloc(sizeof(double) * imageHeight);
+	in = (double *) malloc(sizeof(double) * imageHeight);
+
+	for(j = 0; j < imageWidth; j++)
+	{
+		for(i = 0; i < imageHeight; i++)
+			in[i] = idct_result[i][j];
+
+		IDCT_1D(in, out, imageHeight);
+
+		for(i = 0; i < imageHeight; i++)
+			idct_result[i][j] = out[i];
+	}
+
+	for(y = 0; y < imageWidth; y++)
+		for(x = 0; x < imageHeight; x++)
+			resultImg[y][x] = (unsigned char) idct_result[y][x];
+}
+
+
+void CJTHImageProDoc::IDCT_1D(double *in, double *out, const int count)
+{
+	int x, u;
+	double cv;
+
+	for(x = 0; x < count; x++)
+	{
+		double z = 0;
+
+		for(u = 0; u < count; u++)
+		{
+			if(u == 0) cv = 1.0 / sqrt(2.0);
+			else cv = 1.0;
+
+			z += in[u] * cv * cos(PI * (double)u * (double)(2 * x + 1) / (double)(2 * count));
+		}
+		out[x] = z * (sqrt(2.0 / (double)count));
 	}
 }
