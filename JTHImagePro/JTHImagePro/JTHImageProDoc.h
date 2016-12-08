@@ -92,4 +92,15 @@ public:
 	void DCT_1D(double * in, double * out, const int count);
 	void FastIDCT(void);
 	void IDCT_1D(double * in, double * out, const int count);
+	void SaveJpeg(void);
+	void WriteSOI(CFile * file);
+	void WriteDQT(CFile * file);
+	void WriteDHT(CFile * file);
+	void WriteSOF(CFile * file, int Width, int Height);
+	void WriteSOS(CFile * file);
+	void DCT_Zigzag_Quantization(short * ptr, int img_W, int tableNo);
+	void Encode(CFile * file, short * ptr, int num, int img_W, int * cnt);
+	void WriteCode(CFile * file, unsigned short code, int size, int * cnt);
+	void WriteEOI(CFile * file);
+	unsigned char CountBits(short V);
 };

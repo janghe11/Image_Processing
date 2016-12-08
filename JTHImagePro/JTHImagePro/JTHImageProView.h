@@ -70,6 +70,7 @@ public:
 	afx_msg void OnDCT();
 	afx_msg void OnFastDCT();
 	afx_msg void OnFastIDCT();
+	afx_msg void OnSaveJpeg();
 };
 
 #ifndef _DEBUG  // JTHImageProView.cpp의 디버그 버전

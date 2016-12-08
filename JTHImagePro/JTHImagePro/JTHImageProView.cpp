@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CJTHImageProView, CScrollView)
 	ON_COMMAND(ID_DCT, &CJTHImageProView::OnDCT)
 	ON_COMMAND(ID_FastDCT, &CJTHImageProView::OnFastDCT)
 	ON_COMMAND(ID_FastIDCT, &CJTHImageProView::OnFastIDCT)
+	ON_COMMAND(ID_SAVE_JPEG, &CJTHImageProView::OnSaveJpeg)
 END_MESSAGE_MAP()
 
 // CJTHImageProView 생성/소멸
@@ -593,6 +594,19 @@ void CJTHImageProView::OnFastIDCT()
 
 	if(pDoc->inputImg == NULL) return;
 	pDoc->FastIDCT();
+	viewMode = TWO_IMAGES;
+	Invalidate(FALSE);
+}
+
+
+void CJTHImageProView::OnSaveJpeg()
+{
+	// TODO: 여기에 명령 처리기 코드를 추가합니다.
+	CJTHImageProDoc *pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	if(pDoc->inputImg == NULL) return;
+	pDoc->SaveJpeg();
 	viewMode = TWO_IMAGES;
 	Invalidate(FALSE);
 }

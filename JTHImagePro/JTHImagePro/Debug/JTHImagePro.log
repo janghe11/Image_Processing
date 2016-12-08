@@ -1,4 +1,4 @@
-﻿빌드 시작: 2016-11-28 오후 4:18:35
+﻿빌드 시작: 2016-12-08 오전 9:49:15
      1>2 노드의 "C:\Users\502-00\Desktop\영상처리\2반\JTHImagePro\JTHImagePro\JTHImagePro.vcxproj" 프로젝트(build 대상)입니다.
      1>InitializeBuildStatus:
          "AlwaysCreate"이(가) 지정되었기 때문에 "Debug\JTHImagePro.unsuccessfulbuild"을(를) 만들고 있습니다.
@@ -38,4 +38,4 @@
 
 빌드했습니다.
 
-경과 시간: 00:00:00.54
+경과 시간: 00:00:07.80
